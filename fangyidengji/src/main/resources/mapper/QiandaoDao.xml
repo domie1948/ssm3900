@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.QiandaoDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.yonghu_id as yonghuId
+        ,a.qiandao_time as qiandaoTime
+        ,a.shenti_types as shentiTypes
+        ,a.guowai_types as guowaiTypes
+        ,a.ganranzhe_types as ganranzheTypes
+        ,a.qiandao_content as qiandaoContent
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.QiandaoView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,yonghu.yonghu_name as yonghuName
+        ,yonghu.yonghu_phone as yonghuPhone
+        ,yonghu.yonghu_id_number as yonghuIdNumber
+        ,yonghu.sex_types as sexTypes
+        ,yonghu.yonghu_photo as yonghuPhoto
+        ,yonghu.shenfenzheng_z_photo as shenfenzhengZPhoto
+        ,yonghu.shenfenzheng_F_photo as shenfenzhengFPhoto
+
+        FROM qiandao  a
+        left JOIN yonghu yonghu ON a.yonghu_id = yonghu.id
+
+        <where>
+            <if test="params.yonghuId != null">
+                and a.yonghu_id = #{params.yonghuId}
+            </if>
+            <if test=" params.qiandaoTime != '' and params.qiandaoTime != null and params.qiandaoTime != 'null' ">
+                and a.qiandao_time like CONCAT('%',#{params.qiandaoTime},'%')
+            </if>
+            <if test="params.shentiTypes != null">
+                and a.shenti_types = #{params.shentiTypes}
+            </if>
+            <if test="params.guowaiTypes != null">
+                and a.guowai_types = #{params.guowaiTypes}
+            </if>
+            <if test="params.ganranzheTypes != null">
+                and a.ganranzhe_types = #{params.ganranzheTypes}
+            </if>
+            <if test=" params.qiandaoContent != '' and params.qiandaoContent != null and params.qiandaoContent != 'null' ">
+                and a.qiandao_content like CONCAT('%',#{params.qiandaoContent},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+            <if test=" params.yonghuName != '' and params.yonghuName != null and params.yonghuName != 'null' ">
+                and yonghu.yonghu_name like CONCAT('%',#{params.yonghuName},'%')
+            </if>
+            <if test=" params.yonghuPhone != '' and params.yonghuPhone != null and params.yonghuPhone != 'null' ">
+                and yonghu.yonghu_phone like CONCAT('%',#{params.yonghuPhone},'%')
+            </if>
+            <if test=" params.yonghuIdNumber != '' and params.yonghuIdNumber != null and params.yonghuIdNumber != 'null' ">
+                and yonghu.yonghu_id_number like CONCAT('%',#{params.yonghuIdNumber},'%')
+            </if>
+            <if test="params.sexTypes != null">
+                and yonghu.sex_types = #{params.sexTypes}
+            </if>
+
+        </where>
+        order by a.${params.orderBy} desc
+    </select>
+
+</mapper>
